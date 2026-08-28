@@ -9,7 +9,7 @@ import sqlite3
 import time
 from typing import Iterable
 
-from .models import Posting
+from ..core.models import Posting
 
 
 def now() -> int:

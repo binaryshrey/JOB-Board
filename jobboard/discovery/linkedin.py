@@ -19,8 +19,8 @@ import re
 import time
 from typing import Iterator
 
-from .. import http, urls
-from ..models import BoardRef, FetchError
+from ..core import http, urls
+from ..core.models import BoardRef, FetchError
 from .base import Source
 
 SEARCH = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"

@@ -12,8 +12,8 @@ from __future__ import annotations
 
 from typing import Iterator
 
-from .. import config, http, urls
-from ..models import BoardRef, Posting
+from ..core import config, http, urls
+from ..core.models import BoardRef, Posting
 from .base import Source
 
 RAW = "https://raw.githubusercontent.com/{repo}/{branch}/{path}"

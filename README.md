@@ -70,14 +70,18 @@ Sources only ever yield `BoardRef`s. They never validate and never poll.
 
 ```
 jobboard/
-  config.py      env-overridable settings
-  db.py          schema: boards, board_sources, jobs, events, poll_runs
-  models.py      Posting, BoardRef, content_hash
-  urls.py        ATS URL router -> (ats, slug, external_id)
-  http.py        retrying session, per-host concurrency cap
-  registry.py    writes to boards; backoff and tiering
-  jobs.py        writes to jobs
-  validate.py    probe unvalidated boards
-  adapters/      one per ATS (ashby today)
-  discovery/     one per source
+  cli.py           command line surface
+  core/            settings, storage, HTTP, data shapes, URL routing
+  adapters/        one per ATS -- fetch a board, return Postings
+  discovery/       one per source -- yield BoardRefs, nothing else
+  registry/        which boards exist, whether they are real, careers pages
+  feed/            postings and the events emitted as they change
+seeds/             hand-written slug lists (source, tracked)
+data/              database and logs (generated, ignored)
+tests/
 ```
+
+The dependency direction is one-way: `core` knows nothing about the layers
+above it, `discovery` only ever writes to `registry`, and only the reconciler
+writes to `feed`. Keeping those separate is what lets a noisy discovery source
+be harmless and an ATS be added without re-running discovery.

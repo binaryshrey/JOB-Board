@@ -12,9 +12,9 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Iterable, Iterator
 from urllib.parse import urlsplit
 
-from .. import http, urls
-from ..models import FetchError
-from ..urls import Ref
+from ..core import http, urls
+from ..core.models import FetchError
+from ..core.urls import Ref
 
 # Ordered by hit rate. Kept short: every extra path multiplies the cost of
 # the misses, which are the overwhelming majority.

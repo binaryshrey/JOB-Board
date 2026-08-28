@@ -15,8 +15,8 @@ import subprocess
 import time
 from typing import Iterator
 
-from .. import http, urls
-from ..models import BoardRef, FetchError
+from ..core import http, urls
+from ..core.models import BoardRef, FetchError
 from .base import Source
 
 API = "https://api.github.com/search/code"

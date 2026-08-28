@@ -11,8 +11,8 @@ import json
 from typing import Iterator
 from urllib.parse import quote
 
-from .. import http, urls
-from ..models import BoardRef, FetchError
+from ..core import http, urls
+from ..core.models import BoardRef, FetchError
 from .base import Source
 
 COLLINFO = "https://index.commoncrawl.org/collinfo.json"

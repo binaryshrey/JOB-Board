@@ -14,8 +14,8 @@ from __future__ import annotations
 import time
 from typing import Iterator
 
-from .. import http, urls
-from ..models import BoardRef, FetchError
+from ..core import http, urls
+from ..core.models import BoardRef, FetchError
 from .base import Source
 
 API = "https://urlscan.io/api/v1/search/"

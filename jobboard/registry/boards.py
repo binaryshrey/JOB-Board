@@ -6,8 +6,8 @@ import sqlite3
 import time
 from typing import Iterable
 
-from . import config
-from .models import BoardRef
+from ..core import config
+from ..core.models import BoardRef
 
 
 def now() -> int:

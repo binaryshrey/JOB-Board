@@ -5,9 +5,11 @@ import argparse
 import sys
 import time
 
-from . import (adapters, careerpage, config, db, discovery, jobs, registry,
-               validate as validate_mod)
-from .models import BoardRef
+from . import adapters, discovery
+from .core import config, db
+from .core.models import BoardRef
+from .feed import jobs
+from .registry import boards as registry, careers as careerpage, validate as validate_mod
 
 
 def _fmt(n) -> str:

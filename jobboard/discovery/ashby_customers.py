@@ -12,8 +12,8 @@ from __future__ import annotations
 import re
 from typing import Iterator
 
-from .. import http, urls
-from ..models import BoardRef, FetchError
+from ..core import http, urls
+from ..core.models import BoardRef, FetchError
 from .base import Source
 
 CUSTOMERS_URL = "https://www.ashbyhq.com/customers"

@@ -12,8 +12,10 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 
-from . import adapters, config, registry
-from .models import FetchError
+from .. import adapters
+from ..core import config
+from . import boards as registry
+from ..core.models import FetchError
 
 
 @dataclass

@@ -11,8 +11,8 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
-from .. import http
-from ..models import Posting
+from ..core import http
+from ..core.models import Posting
 from .base import Adapter
 
 API = "https://api.ashbyhq.com/posting-api/job-board/{slug}"
@@ -47,7 +47,7 @@ class AshbyAdapter(Adapter):
         data = http.get_json(self.board_url(slug), params={"includeCompensation": "true"})
         jobs = (data or {}).get("jobs")
         if jobs is None:
-            from ..models import FetchError
+            from ..core.models import FetchError
             raise FetchError("response had no 'jobs' key")
 
         out: list[Posting] = []

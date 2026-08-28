@@ -19,8 +19,8 @@ import re
 from pathlib import Path
 from typing import Iterator
 
-from .. import config, urls
-from ..models import BoardRef
+from ..core import config, urls
+from ..core.models import BoardRef
 from .base import Source
 
 TARGET = os.getenv("JOBBOARD_IG_TARGET", "zero2sudo")

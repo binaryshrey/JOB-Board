@@ -10,8 +10,8 @@ from __future__ import annotations
 
 from typing import Iterator
 
-from .. import http, urls
-from ..models import BoardRef, FetchError
+from ..core import http, urls
+from ..core.models import BoardRef, FetchError
 from .base import Source
 
 SEARCH = "https://hn.algolia.com/api/v1/search"

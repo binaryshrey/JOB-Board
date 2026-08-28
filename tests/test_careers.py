@@ -4,8 +4,8 @@ The aggregator guard is pinned because violating it is silent and expensive:
 one YC company's page (getcargo.io) linked to 239 boards and mislabelled all of
 them -- Ramp included -- with the page owner's name.
 """
-from jobboard.careerpage import candidate_domains
-from jobboard.discovery.careers import MAX_ATTRIBUTABLE_REFS
+from jobboard.registry.careers import candidate_domains
+from jobboard.discovery.probe import MAX_ATTRIBUTABLE_REFS
 
 
 def test_known_website_is_tried_first():

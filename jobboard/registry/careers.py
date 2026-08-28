@@ -19,9 +19,10 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 
-from . import config, jobs as jobs_mod
-from .discovery.careers import MAX_ATTRIBUTABLE_REFS, domain_of, probe
-from .models import BoardRef
+from ..core import config
+from ..feed import jobs as jobs_mod
+from ..discovery.probe import MAX_ATTRIBUTABLE_REFS, domain_of, probe
+from ..core.models import BoardRef
 
 # Ordered by prior likelihood for a tech company.
 TLDS = (".com", ".io", ".ai", ".co", ".dev", ".app")

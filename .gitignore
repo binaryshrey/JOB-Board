@@ -21,14 +21,12 @@ htmlcov/
 .tox/
 
 # --- Generated data ---------------------------------------------------------
-# The database is a rebuildable artifact: `discover` + `validate` recreate it in
-# ~10 minutes. Committing a multi-MB binary that churns every hour would wreck
-# the history for no benefit. data/seeds/ IS tracked -- it is source, not output.
-data/*.db
-data/*.db-wal
-data/*.db-shm
-data/*.jsonl
-data/cache/
+# data/ is now output only -- hand-written seed lists live in seeds/, which IS
+# tracked. That split is why this can be a single blanket rule instead of a set
+# of carve-outs. The database is a rebuildable artifact: `discover` + `validate`
+# recreate it in minutes, and committing a multi-MB binary that churns hourly
+# would wreck the history for no benefit.
+data/
 *.log
 
 # --- Secrets ----------------------------------------------------------------

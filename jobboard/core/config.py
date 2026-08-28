@@ -2,10 +2,12 @@
 import os
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 DATA_DIR = Path(os.getenv("JOBBOARD_DATA", ROOT / "data"))
 DB_PATH = Path(os.getenv("JOBBOARD_DB", DATA_DIR / "jobboard.db"))
-SEEDS_DIR = DATA_DIR / "seeds"
+# Seeds are hand-written source, not generated output, so they live outside
+# data/ -- which lets data/ be ignored wholesale.
+SEEDS_DIR = ROOT / "seeds"
 EVENTS_LOG = Path(os.getenv("JOBBOARD_EVENTS_LOG", DATA_DIR / "events.jsonl"))
 
 USER_AGENT = os.getenv(

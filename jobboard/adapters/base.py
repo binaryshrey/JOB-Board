@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from ..models import Posting
+from ..core.models import Posting
 
 
 class Adapter(ABC):

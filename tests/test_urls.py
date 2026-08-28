@@ -1,5 +1,5 @@
 """Router tests use URLs observed in real data, not invented ones."""
-from jobboard.urls import parse, extract_all
+from jobboard.core.urls import parse, extract_all
 
 CASES = [
     # (url, expected ats, expected slug, expected external_id)
