@@ -1,13 +1,18 @@
 # Hand-curated Ashby board slugs -- one slug or full URL per line, `#` comments.
 #
-# This is the manual escape hatch for companies no automated source reaches:
-# something you heard about in a Discord, a referral, a job post that was never
-# crawled. Add freely -- `validate` discards anything that does not resolve.
+# The manual escape hatch for companies no automated source reaches. Add
+# freely; `validate` discards anything that does not resolve.
 #
-# Deliberately empty: the original contents were seeded from Common Crawl
-# output, so every entry was already found automatically and the file scored
-# zero unique boards. Only add slugs here that discovery genuinely misses.
-#
-# example:
-#   acme-robotics
-#   https://jobs.ashbyhq.com/acme-robotics
+# These are from Ashby's own published customer list (via binaryshrey/BOARD)
+# and were confirmed missing from every automated source we run.
+aurora-solar
+boomi
+brightline
+flock-safety
+form-energy
+ironclad
+marqeta
+monte-carlo
+shopify
+superhumanapp
+teal
