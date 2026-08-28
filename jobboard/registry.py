@@ -33,11 +33,14 @@ def add_boards(conn: sqlite3.Connection, refs: Iterable[BoardRef], source: str) 
             ).fetchone()
             cur.execute(
                 """INSERT INTO boards (ats, slug, company_name, status, tier,
-                                       next_poll_at, first_seen_at)
-                   VALUES (?, ?, ?, 'unvalidated', ?, ?, ?)
+                                       next_poll_at, first_seen_at, website, careers_url)
+                   VALUES (?, ?, ?, 'unvalidated', ?, ?, ?, ?, ?)
                    ON CONFLICT(ats, slug) DO UPDATE SET
-                       company_name = COALESCE(boards.company_name, excluded.company_name)""",
-                (ref.ats, ref.slug, ref.company_name, config.DEFAULT_TIER, ts, ts),
+                       company_name = COALESCE(boards.company_name, excluded.company_name),
+                       website      = COALESCE(boards.website,      excluded.website),
+                       careers_url  = COALESCE(boards.careers_url,  excluded.careers_url)""",
+                (ref.ats, ref.slug, ref.company_name, config.DEFAULT_TIER, ts, ts,
+                 ref.website, ref.careers_url),
             )
             if before is None:
                 added += 1

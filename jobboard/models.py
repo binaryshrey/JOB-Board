@@ -54,6 +54,8 @@ class BoardRef:
     source: Optional[str] = None
     detail: Optional[dict[str, Any]] = None   # provenance payload, e.g. sample url
     posting: Optional["Posting"] = None       # some sources carry a seed posting
+    website: Optional[str] = None             # the company's own site
+    careers_url: Optional[str] = None         # page the ATS link was found on
 
 
 class FetchError(RuntimeError):

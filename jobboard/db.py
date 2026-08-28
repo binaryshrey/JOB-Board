@@ -11,7 +11,7 @@ from pathlib import Path
 
 from . import config
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS boards (
@@ -32,6 +32,13 @@ CREATE TABLE IF NOT EXISTS boards (
     consecutive_failures INTEGER NOT NULL DEFAULT 0,
     last_error           TEXT,
     first_seen_at        INTEGER NOT NULL,
+    -- The company's own careers page, kept alongside the board. A slug goes
+    -- dead when a company switches ATS, but the careers page follows them --
+    -- so re-probing this is how we notice a migration instead of just losing
+    -- the company.
+    website              TEXT,
+    careers_url          TEXT,
+    careers_checked_at   INTEGER,
     PRIMARY KEY (ats, slug)
 );
 CREATE INDEX IF NOT EXISTS idx_boards_due    ON boards(status, next_poll_at);
@@ -107,6 +114,16 @@ CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT);
 """
 
 
+# Applied in order for databases created before the current SCHEMA_VERSION.
+MIGRATIONS: dict[int, list[str]] = {
+    2: [
+        "ALTER TABLE boards ADD COLUMN website TEXT",
+        "ALTER TABLE boards ADD COLUMN careers_url TEXT",
+        "ALTER TABLE boards ADD COLUMN careers_checked_at INTEGER",
+    ],
+}
+
+
 def connect(path: Path | None = None) -> sqlite3.Connection:
     path = Path(path or config.DB_PATH)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -121,7 +138,19 @@ def connect(path: Path | None = None) -> sqlite3.Connection:
 
 def init_db(path: Path | None = None) -> sqlite3.Connection:
     conn = connect(path)
-    conn.executescript(SCHEMA)
+    row = conn.execute("SELECT value FROM meta WHERE key='schema_version'").fetchone() \
+        if conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='meta'"
+                        ).fetchone() else None
+    current = int(row["value"]) if row else 0
+    conn.executescript(SCHEMA)          # CREATE IF NOT EXISTS is safe to re-run
+    for version in sorted(MIGRATIONS):
+        if current and current < version:
+            for stmt in MIGRATIONS[version]:
+                try:
+                    conn.execute(stmt)
+                except sqlite3.OperationalError as exc:
+                    if "duplicate column" not in str(exc).lower():
+                        raise
     conn.execute(
         "INSERT INTO meta(key, value) VALUES('schema_version', ?) "
         "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
