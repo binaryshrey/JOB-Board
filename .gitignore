@@ -1,0 +1,48 @@
+# --- Python -----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# --- Virtualenvs ------------------------------------------------------------
+.venv/
+venv/
+env/
+
+# --- Tooling caches ---------------------------------------------------------
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+
+# --- Generated data ---------------------------------------------------------
+# The database is a rebuildable artifact: `discover` + `validate` recreate it in
+# ~10 minutes. Committing a multi-MB binary that churns every hour would wreck
+# the history for no benefit. data/seeds/ IS tracked -- it is source, not output.
+data/*.db
+data/*.db-wal
+data/*.db-shm
+data/*.jsonl
+data/cache/
+*.log
+
+# --- Secrets ----------------------------------------------------------------
+# Nothing here should ever hold a token: the GitHub source borrows `gh auth
+# token` at runtime and never writes it to disk. This is belt and braces.
+.env
+.env.*
+!.env.example
+*.pem
+credentials.json
+
+# --- OS / editor ------------------------------------------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
