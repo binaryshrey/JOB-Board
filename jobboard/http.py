@@ -12,7 +12,13 @@ from urllib3.util.retry import Retry
 
 from . import config
 
+BROWSER_UA = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+)
+
 _local = threading.local()
+_local_probe = threading.local()
 _host_locks: dict[str, threading.Semaphore] = defaultdict(
     lambda: threading.Semaphore(config.PER_HOST_CONCURRENCY)
 )
@@ -39,6 +45,25 @@ def session() -> requests.Session:
     return s
 
 
+def probe_session() -> requests.Session:
+    """Session for speculative probes, where a miss is the expected outcome.
+
+    Deliberately retry-free: the shared session retries 3x with backoff, which
+    turns a dead domain into a 9-second stall. Across thousands of company
+    domains that dominates the entire sweep.
+    """
+    s = getattr(_local_probe, "session", None)
+    if s is None:
+        s = requests.Session()
+        adapter = HTTPAdapter(max_retries=Retry(total=0, connect=0, read=0, redirect=2),
+                              pool_maxsize=config.WORKERS * 2)
+        s.mount("https://", adapter)
+        s.mount("http://", adapter)
+        s.headers.update({"User-Agent": BROWSER_UA})
+        _local_probe.session = s
+    return s
+
+
 @contextmanager
 def host_slot(url: str):
     host = urlsplit(url).netloc
@@ -54,9 +79,10 @@ def host_slot(url: str):
 def get_json(url: str, **kwargs):
     from .models import FetchError
 
+    timeout = kwargs.pop("timeout", config.HTTP_TIMEOUT)
     with host_slot(url):
         try:
-            r = session().get(url, timeout=config.HTTP_TIMEOUT, **kwargs)
+            r = session().get(url, timeout=timeout, **kwargs)
         except requests.RequestException as exc:
             raise FetchError(f"{type(exc).__name__}: {exc}") from exc
     if r.status_code in (404, 410):
@@ -73,9 +99,10 @@ def get_lines(url: str, **kwargs):
     """Stream a large text response line by line (Common Crawl index pages)."""
     from .models import FetchError
 
+    timeout = kwargs.pop("timeout", config.HTTP_TIMEOUT)
     with host_slot(url):
         try:
-            r = session().get(url, timeout=config.HTTP_TIMEOUT, stream=True, **kwargs)
+            r = session().get(url, timeout=timeout, stream=True, **kwargs)
         except requests.RequestException as exc:
             raise FetchError(f"{type(exc).__name__}: {exc}") from exc
         if r.status_code in (404, 410):
@@ -90,3 +117,39 @@ def get_lines(url: str, **kwargs):
                     yield line
         except requests.RequestException as exc:
             raise FetchError(f"stream interrupted: {type(exc).__name__}: {exc}") from exc
+
+
+def get_text(url: str, *, probe: bool = False, max_bytes: int | None = None,
+             **kwargs) -> str:
+    """Fetch a page as text (HTML sources), with the same error contract.
+
+    probe=True uses the retry-free session -- for speculative fetches where a
+    miss is normal. max_bytes stops reading early: careers pages routinely run
+    to several MB, and the ATS link is in the markup long before the end.
+    """
+    from .models import FetchError
+
+    timeout = kwargs.pop("timeout", config.HTTP_TIMEOUT)
+    headers = {"Accept": "text/html,application/xhtml+xml,*/*", "User-Agent": BROWSER_UA}
+    headers.update(kwargs.pop("headers", None) or {})
+    sess = probe_session() if probe else session()
+    with host_slot(url):
+        try:
+            r = sess.get(url, timeout=timeout, headers=headers,
+                         stream=max_bytes is not None, **kwargs)
+            if r.status_code in (404, 410):
+                raise FetchError(f"not found ({r.status_code})", permanent=True,
+                                 status=r.status_code)
+            if r.status_code >= 400:
+                raise FetchError(f"HTTP {r.status_code}", status=r.status_code)
+            if max_bytes is None:
+                return r.text
+            buf = bytearray()
+            for chunk in r.iter_content(65536):
+                buf.extend(chunk)
+                if len(buf) >= max_bytes:
+                    break
+            r.close()
+            return buf.decode(r.encoding or "utf-8", errors="ignore")
+        except requests.RequestException as exc:
+            raise FetchError(f"{type(exc).__name__}: {exc}") from exc
